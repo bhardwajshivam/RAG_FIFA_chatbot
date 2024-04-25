@@ -1,0 +1,45 @@
+
+---------------------- Chat function ----------------------------
+response = ollama.chat(model='mistral', messages=[{'role':'user',
+            'content':'Hi, how are you?'}])
+print("chat response:", generate_response['response'])
+
+---------------------- Generate function -------------------------
+generate_response = ollama.generate(model='mistral', prompt='Hi')
+print("generate_response:", generate_response['response])
+
+---------------------- List function -----------------------------
+models_list = ollama.list()
+print("List of models:", models_list)
+
+----------------------- Show function ----------------------------
+show_response = ollama.show('mistral')
+print("Show model response:", show_response)
+
+------------------------ Show function ---------------------------
+modelfile = '''
+FROM mistral
+SYSTEM You are Mario from Super Mario Bros.
+'''
+create_response = olla.create(model='example', modelfile=modelfile)
+print("Create model response:", copy_response)
+
+------------------------- Copy function --------------------------
+copy_response = ollama.copy('mistral', 'user/mistral')
+print("Copy model response:", copy_response)
+
+------------------------- Delete function ------------------------
+delete_response = ollama.delete('example')
+print("Delete model response:", delete_response)
+
+-------------------------- Pull function -------------------------
+pull_response = ollama.pull('user/mistral')
+print("Pull model response:", pull_response)
+
+-------------------------- Push function -------------------------
+pull_response = ollama.push('user/mistral')
+print("Push model response:", push_response)
+
+-------------------------- Embeddings function --------------------
+embeddings_response = ollama.embeddings(model='mistral', prompt='Hi')
+print("Embeddings response:", embeddings_response)

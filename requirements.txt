@@ -1,0 +1,5 @@
+ollama
+langchain
+chromadb
+streamlit
+bs4
