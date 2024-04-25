@@ -1,5 +1,5 @@
 
-# RAG-chatbot
+# RAG-FIFA chatbot
 Ollama, RAG, ChromaDB 
 
 ## Overview
@@ -23,7 +23,7 @@ The concept of a Retrieval-Augmented Generation (RAG) refers to a hybrid approac
 
 ## 1. Calling RAG (rag_chain_test_semantic)
 
-The `rag_chain_test_semantic` function is used to initiate the RAG (Retrieval-Augmented Generation) with semantic search capabilities. It requires two arguments:
+The `rag_chat_gen()` function is used to initiate the RAG (Retrieval-Augmented Generation) with semantic search capabilities. It requires two arguments:
 - **Prompt**: The input text or query for which relevant information is sought.
 - **Retriever**: The mechanism responsible for retrieving relevant documents from the VectorDB (Chroma).
 
@@ -57,64 +57,79 @@ Example usage:
 response = ollama_llm(prompt, formatted_context)
 ```
 
-## Code for RAG Chain
+## Code for RAG
 ```python
 
-class rag_chat():
+class RagChat():
+    """ The RAG (Retrieval Augmented Generation) class. """
+
     def __init__(self):
-        self.chat_history = [] #stores chat history
-    
+        """ Function initializing the class RagChat. """
+        self.chat_history = []
+
     def format_docs(self,docs):
-        return "\n\n".join(doc.page_content for doc in docs) #joins every document
-    
-    def load_vectorDB(self,): #loads the VectorDB and Retiever
-        vectorStore = Chroma(persist_directory = "/home/shivam/Desktop/Git-repo/RAG-chatbot/VectorStore", embedding_function = embeddings)
-        retriever = vectorStore.as_retriever()
+        """ Function for formatting documents. """
+        return "\n\n".join(doc.page_content for doc in docs)
+
+    def load_vector_database(self,):
+        """ Function for loading loacal vectorDB and creating retriever. """
+        vector_store = Chroma(persist_directory = "./vector_store", embedding_function = embeddings)
+        retriever = vector_store.as_retriever()
         return retriever
 
-
-    #Define the Ollama LLM function
     def ollama_llm(self, question, context):
-        formatted_prompt = f"Question: {question}\n\nContext: {context}" # formating prompt and adding context (from retrieved documents)
-        response = ollama.chat(model='mistral', messages=[{'role': 'user', 'content':formatted_prompt}]) # generating response from "mistral"
+        """ Function for generating response using ollama (model = mistral). """
+        formatted_prompt = f"""Question: {question}\n\n You are a FIFA chatbot. Use the context to
+                            answer the question, if context is not enough, use your best knowldege
+                            to answer the question\n\n Context: {context}"""
+        response = ollama.chat(model='mistral', messages=[{'role': 'user', 'content':formatted_prompt}])
         return response['message']['content']
 
 
-    def list_of_retrieved_docs(self, retrieved_docs): # function is used to return a list of retrieved documents
+    def list_of_retrieved_docs(self, retrieved_docs):
+        """ Function for returning an array of retrieved documents. """
         dict_response = {}
-        for i in range(len(retrieved_docs)):
+        for i, cur_response in enumerate(retrieved_docs):
             if i not in dict_response:
-                dict_response[i] = retrieved_docs[i].page_content.replace("\n", "")
+                dict_response[i] = cur_response.page_content.replace("\n", "")
         list_retrieved_docs = list(dict_response.values())
         return list_retrieved_docs
 
-    def valid_docs(self, similarity_scores, max_similarity): 
+    def valid_docs(self, similarity_scores, max_similarity):
+        """ Function for returning an array of indices (of valid documents). """
         valid_doc_index = []
-        for i in range(len(similarity_scores)):
-            if similarity_scores[i] >= 0.6*max_similarity: # returns the valid documents satisfying this condition
+        for i, cur_similarity_score in enumerate(similarity_scores):
+            if cur_similarity_score >= 0.6*max_similarity:
                 valid_doc_index.append(i)
         return valid_doc_index
 
-    def semantic_search_on_retrieved_docs(self, prompt,list_retrieved_docs, retrieved_docs):
-        model = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1") # model used to calculate similarity between prompt and retrieved docs.
-        query_embedding = model.encode(prompt) # embedding for query
-        retrieved_docs_embedding = model.encode(list_retrieved_docs) # embeddings for retrieved documents
-        similarity_scores = util.dot_score(query_embedding, retrieved_docs_embedding)[0].tolist() # returns a list of similarity scores between each retrieved document and the prompt
+    def semantic_search_on_retrieved_docs(self, prompt, list_retrieved_docs, retrieved_docs):
+        """ Function for performing semantic search on retrieved documents. """
+        model = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
+        query_embedding = model.encode(prompt)
+        retrieved_docs_embedding = model.encode(list_retrieved_docs) 
+        similarity_scores = util.dot_score(query_embedding, retrieved_docs_embedding)[0].tolist()
         max_similarity = max(similarity_scores)
         valid_doc_index = self.valid_docs(similarity_scores, max_similarity)
-        best_retrieved_docs = [] # stores the retrieved documents with scores in the range[0.7*max_similarity_score, max_similarity_score]
+        best_retrieved_docs = []
         for idx in valid_doc_index:
             best_retrieved_docs.append(retrieved_docs[idx])
         return best_retrieved_docs
 
-    #RAG 
-    def rag_chain_test_semantic(self, question):
-        retriever=self.load_vectorDB()
-        retrieved_docs = retriever.invoke(question) #retrieve documents from the vectorDB
-        list_retrieved_docs = self.list_of_retrieved_docs(retrieved_docs) # generates the list of retrieved documents.
-        best_retrieved_docs = self.semantic_search_on_retrieved_docs(question,list_retrieved_docs, retrieved_docs) #Storing the best documents
-        formatted_context = self.format_docs(best_retrieved_docs) # formatting context for better results
+    def rag_chat_gen(self, question):
+        """ Function with the main RAG flow. """
+        retriever=self.load_vector_database()
+        retrieved_docs = retriever.invoke(question)
+        list_retrieved_docs = self.list_of_retrieved_docs(retrieved_docs)
+        best_retrieved_docs = self.semantic_search_on_retrieved_docs(question,list_retrieved_docs, retrieved_docs)
+        formatted_context = self.format_docs(best_retrieved_docs)
         return self.ollama_llm(question, formatted_context)
+
+
+    def clear_history(self,):
+        """ Function for clearing chat history. """
+        if 'history' in st.session_state:
+            del st.session_state['history']
 
 ```
 
@@ -122,7 +137,8 @@ class rag_chat():
 
 * Use python=3.11
 * Use sqlite3 > 3.35.0
-* Please define your own persist_directory to store and call the VectorDB
+* To load links of your choice update links in load_data.py
+* Install pytest to run unit tests: pip install -U pytest
 
 
 * Install Ollama from: https://ollama.com
