@@ -21,7 +21,7 @@ class RagChat():
 
     def load_vector_database(self,):
         """ Function for loading loacal vectorDB and creating retriever. """
-        vector_store = Chroma(persist_directory = "./", embedding_function = embeddings)
+        vector_store = Chroma(persist_directory = "./vector_store", embedding_function = embeddings)
         retriever = vector_store.as_retriever()
         return retriever
 

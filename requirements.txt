@@ -3,3 +3,4 @@ langchain
 chromadb
 streamlit
 bs4
+sentence_transformers
