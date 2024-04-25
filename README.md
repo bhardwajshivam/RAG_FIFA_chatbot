@@ -8,7 +8,7 @@ This project implements a Retrieval Augmented Generation (RAG) based chatbot lev
 ## Concept of RAG 
 The concept of a Retrieval-Augmented Generation (RAG) refers to a hybrid approach in natural language processing that combines retrieval-based and generation-based methods to enhance the quality and relevance of text output in tasks such as question answering, conversation, or document summarization. This approach addresses the limitations of purely generative models by dynamically integrating external information from a relevant database.
 
-### How RAG Chain Works:
+### How RAG Works:
 1. **Retrieval Step**: Upon receiving a query (like a question or prompt), the RAG model first retrieves relevant documents or data snippets from a large corpus or database. This retrieval is conducted using a vector space model where both the query and the documents are encoded into embeddings. Techniques like approximate nearest neighbor search are employed to find the most relevant documents.
 2. **Augmentation and Context Integration**: The retrieved documents are then used as additional context for the generation model. This context augmentation helps the generative model to be more informed and precise, allowing it to produce answers that are not only based on its pre-trained knowledge but also on specific information contained in the external documents.
 3. **Generation Step**: Leveraging a language model, the RAG system generates a response by conditioning on both the initial query and the retrieved documents. The generation model synthesizes information from these sources to construct a coherent and contextually appropriate response.
@@ -21,7 +21,7 @@ The concept of a Retrieval-Augmented Generation (RAG) refers to a hybrid approac
 
 # RAG + Semantic Search 
 
-## 1. Calling RAG (rag_chain_test_semantic)
+## 1. Calling RAG
 
 The `rag_chat_gen()` function is used to initiate the RAG (Retrieval-Augmented Generation) with semantic search capabilities. It requires two arguments:
 - **Prompt**: The input text or query for which relevant information is sought.
