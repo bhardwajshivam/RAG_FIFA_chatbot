@@ -4,3 +4,4 @@ chromadb
 streamlit
 bs4
 sentence_transformers
+streamlit_option_menu

@@ -1,7 +1,30 @@
 """ Module for Streamlit based UI -- RAG based FIFA Chatbot"""
 
+import webbrowser
 import streamlit as st
+from streamlit_option_menu import option_menu
 from app import RagChat
+
+# Navbar
+selected = option_menu(
+    menu_title=None,
+    options=["Home", "FIFA", "Contact", "Settings"],
+    icons=["house", "circle", "envelope", "settings"],
+    menu_icon="cast",
+    default_index=0,
+    orientation="horizontal",
+)
+
+if selected == "FIFA":
+    URL_FIFA = "https://en.wikipedia.org/wiki/FIFA_World_Cup"
+    webbrowser.open_new_tab(URL_FIFA)
+
+if selected == "Home":
+    st.write(":red[Welcome to the FIFA chatbot. I use RAG to answer your queries!!]")
+
+if selected == "Contact":
+    URL_HRILAB = "https://hrilab.tufts.edu/"
+    webbrowser.open_new_tab(URL_HRILAB)
 
 
 @st.cache_resource
@@ -39,7 +62,7 @@ if prompt := st.chat_input("Please type in your query here..."):
 
             message = response
             st.markdown(message)
-      
+     
     st.session_state["messages"].append({"role": "assistant", "content": message})
 
-# end of file
+# End-of-file (EOF)

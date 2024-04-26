@@ -22,6 +22,7 @@ docs = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap = 200)
 splits = text_splitter.split_documents(docs)
 embeddings = OllamaEmbeddings(model="mistral")
-vector_store = Chroma.from_documents(documents = splits, embedding = embeddings, persist_directory="./vector_store")
+vector_store = Chroma.from_documents(documents = splits, embedding = embeddings, 
+                                     persist_directory="./vector_store")
 
-#end of file
+# end of file
